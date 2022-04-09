@@ -15,14 +15,14 @@ class Employee:
 
     def computePayment(self, HoursWorked, date):
         # Over time worked calculations:
-        if (HoursWorked < 0):
-            raise ValueError('Hours Worked cannot be negative!!!')
+        if (self.__RegHours > HoursWorked):
+            raise ValueError("Regular Hours Worked cannot exceed hours worked")
         else:
             OverTimeWorked = HoursWorked - self.__RegHours
 
 
-        if (self.__RegHours > HoursWorked):
-            raise ValueError("Regular Hours Worked cannot exceed hours worked")
+        # if (self.__RegHours > HoursWorked):
+        #     raise ValueError("Regular Hours Worked cannot exceed hours worked")
 
         Over_Time_Rate = self.__HourlyRate * self.__OTMultiple
         # print(Over_Time_Rate)
@@ -31,7 +31,8 @@ class Employee:
         # print(Regular_Pay)
 
         Over_Time_pay = Over_Time_Rate * OverTimeWorked
-        # print(Over_Time_pay)
+        if (Over_Time_pay < 0):
+            raise ValueError('OverTimePay cannot be negative!')
 
         Gross_Pay = Regular_Pay + Over_Time_pay
         # print(Gross_Pay)
@@ -45,15 +46,11 @@ class Employee:
         # print(rnd_Std_Tax)
 
         # 40% of Higher rate Pay
-        # Higher_Tax = Higher_Rate_Pay*0.4
-        if (Higher_Rate_Pay < 0):
-            raise ValueError("Higher Tax cannot be negative")
-        else:
-            Higher_Tax = Higher_Rate_Pay * 0.4
-        # print(Higher_Tax)
+        Higher_Tax = Higher_Rate_Pay*0.4
 
         if (Higher_Tax < 0):
-            raise ValueError("Net Pay cannot be negative.")
+            raise ValueError("Higher Tax cannot be negative")
+
 
         Total_Tax = rnd_Std_Tax + Higher_Tax
         # print(Total_Tax)
@@ -68,8 +65,11 @@ class Employee:
         Net_Deduction = Net_Tax + PRSI
         # print(Net_Deduction)
 
-        Net_Pay = Gross_Pay - Net_Deduction
-        # print(Net_Pay)
+        if (Net_Deduction > Gross_Pay):
+            raise ValueError("Net Pay cannot be negative")
+        else:
+            Net_Pay = Gross_Pay - Net_Deduction
+
 
         dict = {
             "name": self.__FirstName + " " + self.__LastName,
@@ -78,7 +78,7 @@ class Employee:
             "Regular Hours Worked": self.__RegHours,
             "Overtime Hours Worked": OverTimeWorked,
             "Regular Rate": self.__HourlyRate,
-            "Overtime Rate": OverTimeWorked,
+            "Overtime Rate": Over_Time_Rate,
             "Regular Pay": Regular_Pay,
             "Overtime Pay": Over_Time_pay,
             "Gross Pay": Gross_Pay,
@@ -108,7 +108,32 @@ class testEmployee(unittest.TestCase):
         pi = e.computePayment(42, '31/10/2021')
         self.assertLessEqual(pi['Net Pay'], pi['Gross Pay'])
 
+    # Overtime pay cannot be negative.
+    def testOverTimePayCannotBeNegative(self):
+        e = Employee(12345, 'Green', 'Joe', 37, -16, 1.5, 72, 710)
+        pi = e.computePayment(42, '31/10/2021')
+        self.assertLessEqual(0, pi["Overtime Pay"])
+
+
+    # Regular Hours cannot be greater than the Hours worked
+    def testRegHoursNotGreaterThanHoursWorked(self):
+        e = Employee(12345, 'Green', 'Joe', 73, 16, 1.5, 72, 710)
+        pi = e.computePayment(42, '31/10/2021')
+        self.assertLessEqual(pi["Regular Hours Worked"], pi["Hours Worked"])
+
+
+    #Higher Tax cannot be negative.
+    def testHigherTaxCannotBeNegative(self):
+        e = Employee(12345, 'Green', 'Joe', 37, 16, 1.5, 72, 715)
+        pi = e.computePayment(42, '31/10/2021')
+        self.assertLessEqual(0,pi["Higher Tax"])
+
+
+    # Net Pay cannot be negative
+    def testNetPayCannotBeNegative(self):
+        e = Employee(12345, 'Green', 'Joe', 37, 16, 1.5, 200, 710)
+        pi = e.computePayment(42, '31/10/2021')
+        self.assertLessEqual(0,pi["Net Pay"])
 
 unittest.main(argv=['ignored'],exit=False)
 
-    
