@@ -3,14 +3,18 @@ import unittest
 
 class Employee:
     def __init__(self,StaffID,LastName, FirstName, RegHours, HourlyRate, OTMultiple, TaxCredit, StandardBand):
-        self.__StaffID = StaffID
+        if (RegHours < 0 or StaffID < 0 or OTMultiple < 0 or HourlyRate < 0 or TaxCredit < 0 or StandardBand < 0):
+            raise ValueError("This attribute cannot be negative.")
+        else:
+            self.__StaffID = StaffID
+            self.__RegHours = RegHours
+            self.__HourlyRate = HourlyRate
+            self.__OTMultiple = OTMultiple
+            self.__TaxCredit = TaxCredit
+            self.__StandardBand = StandardBand
+
         self.__LastName = LastName
         self.__FirstName = FirstName
-        self.__RegHours = RegHours
-        self.__HourlyRate = HourlyRate
-        self.__OTMultiple = OTMultiple
-        self.__TaxCredit = TaxCredit
-        self.__StandardBand = StandardBand
 
 
     def computePayment(self, HoursWorked, date):
@@ -102,11 +106,38 @@ class Employee:
 
 class testEmployee(unittest.TestCase):
 
+    # Testing class thoroughly
+    def testNegativeStaffID(self):
+        e = Employee(-12345, 'Green', 'Joe', 37, 16, 1.5, 72, 710)
+        self.assertRaises(ValueError)
+
+    def testNegativeRegHours(self):
+        e = Employee(12345, 'Green', 'Joe', -37, 16, 1.5, 72, 710)
+        self.assertRaises(ValueError)
+
+    def testNegativeHourlyRate(self):
+        e = Employee(12345, 'Green', 'Joe', 37, -16, 1.5, 72, 710)
+        self.assertRaises(ValueError)
+
+    def testNegativeOTMultiple(self):
+        e = Employee(12345, 'Green', 'Joe', 37, 16, -1.5, 72, 710)
+        self.assertRaises(ValueError)
+
+    def testNegativeTaxCredit(self):
+        e = Employee(12345, 'Green', 'Joe', 37, 16, 1.5, -72, 710)
+        self.assertRaises(ValueError)
+
+    def testNegativeStandardBand(self):
+        e = Employee(12345, 'Green', 'Joe', 37, 16, 1.5, 72, -710)
+        self.assertRaises(ValueError)
+
     # Net pay cannot exceed gross pay
     def testNetPayCannotExceedGrosspay(self):
         e = Employee(12345, 'Green', 'Joe', 37, 16, 1.5, 72, 710)
         pi = e.computePayment(42, '31/10/2021')
         self.assertLessEqual(pi['Net Pay'], pi['Gross Pay'])
+
+
 
     # Overtime pay cannot be negative.
     def testOverTimePayCannotBeNegative(self):
@@ -131,7 +162,7 @@ class testEmployee(unittest.TestCase):
 
     # Net Pay cannot be negative
     def testNetPayCannotBeNegative(self):
-        e = Employee(12345, 'Green', 'Joe', 37, 16, 1.5, 200, 710)
+        e = Employee(12345, 'Green', 'Joe', 37, 16, 1.5, 72, 710)
         pi = e.computePayment(42, '31/10/2021')
         self.assertLessEqual(0,pi["Net Pay"])
 
