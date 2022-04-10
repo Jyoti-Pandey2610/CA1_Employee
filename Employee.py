@@ -79,7 +79,8 @@ class Employee:
             raise ValueError("Net Pay cannot be negative")
         else:
             Net_Pay = Gross_Pay - Net_Deduction
-
+            if (Net_Deduction < 0):
+                raise ValueError("Net Pay cannot exceed Gross Pay")
 
     # dictionary:
         dict = {
