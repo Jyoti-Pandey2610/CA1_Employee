@@ -75,7 +75,7 @@ class Employee:
 
 
     # Checking for the ValueError for Net pay, which depends on the Net Deduction:
-        if (Net_Deduction > Gross_Pay):
+        if (Net_Deduction > 0):
             raise ValueError("Net Pay cannot be negative")
         else:
             Net_Pay = Gross_Pay - Net_Deduction
